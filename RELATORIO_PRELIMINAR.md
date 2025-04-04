@@ -14,7 +14,7 @@ O projeto foi desenvolvido utilizando o seguinte ambiente:
 - Linguagem de programação: `OCaml 4.14.2`
 - Gerenciador de pacotes: `OPAM 2.3.0`
 - Sistema Dune: `dune 3.17.2`
-- Pacotes adicionais: `csv 2.4` e `sqlite3 5.3.0`
+- Pacotes adicionais: `csv 2.4`, `OUnit 2.2.7`
 
 ### Inicialização e Estrutura do Projeto
 
@@ -114,3 +114,23 @@ O módulo `Map` foi utilizado para criar um mapa onde as chaves são do tipo int
 A função `group_items_by_order_id` utiliza a *high-order function* `fold_left` para iterar sobre a lista de pedidos. Para cada um, extrai o identificador, busca no mapa criado e, se já existe, o item atual é adicionado à lista existente. Se não, cria uma nova lista para aquele pedido e adiciona o item atual. 
 
 A função `transform_data` foi refeita para utilizar o mapa criado. A principal mudança é que, em vez de filtrar a lista completa de itens para cada pedido, a versão otimizada busca diretamente no mapa a lista correspondente a cada identificador de pedido. 
+
+## Fase 6: implementação de Testes Unitários
+
+Nesta fase, foram implementados testes unitários para as *funções puras* do projeto, utilizando o framework `OUnit`. O objetivo dos testes é garantir que as funções puras se comportem conforme o esperado, de maneira determinística, proporcionando confiabilidade e facilitando a manutenção. 
+
+### Estrutura dos testes
+
+Os testes estão organizados no diretório `test`, e podem ser visualizados em [`etl_project/test/test.ml`](etl_project/test/test.ml). Estão integrados ao sistema de compilação do `dune` e foram criados casos para verificar:
+
+- **Funções de Parsing:**  
+  - Validação da conversão correta de linhas CSV para registros do tipo `order_item` e `order`, tanto para casos válidos quanto para casos em que a conversão deve falhar (por exemplo, devido a dados mal formatados ou número incorreto de colunas).
+  
+- **Funções de Formatação:**  
+  - Verificação da formatação de registros de saída (`output_record`) para a escrita em CSV, garantindo que os números sejam exibidos com o número correto de casas decimais.
+
+- **Funções de Cálculo:**  
+  - Testes para as funções `calculate_item_values` e `sum_item_values`, assegurando que os valores de receita e impostos são calculados corretamente.
+
+- **Funções de Agrupamento e Transformação:**  
+  - Verificação do agrupamento dos itens por `order_id` e da transformação dos dados brutos em registros agregados (aplicando filtros de status e origem).
