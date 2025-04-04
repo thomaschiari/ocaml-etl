@@ -1,0 +1,4 @@
+(test
+ (name test_etl_project)
+ (modules test_etl_project)
+ (libraries Etl))
