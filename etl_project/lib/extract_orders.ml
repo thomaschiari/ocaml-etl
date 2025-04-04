@@ -1,5 +1,8 @@
 open Types
 
+open Lwt
+open Cohttp_lwt_unix
+
 (** [parse_order_row row] é uma função auxiliar (pura) que tenta converter uma linha de um arquivo CSV
     em um registro [order]. A função espera que a linha seja uma lista com exatamente cinco elementos, 
     que correspondem, respectivamente, ao identificador do pedido, identificador do cliente, data do pedido, 
@@ -38,3 +41,24 @@ let read_csv_orders (csv_path: string) : order list =
   let csv_content = Csv.load csv_path in
   let csv_rows = List.tl csv_content in
   List.filter_map parse_order_row csv_rows
+
+
+(** [read_csv_orders_from_url url] realiza a leitura dos dados de pedidos a partir de um arquivo CSV 
+    disponível na internet, acessado via HTTP GET.
+    
+    A função realiza uma requisição para a URL fornecida, converte o corpo da resposta para string, 
+    utiliza [Csv.of_string] para transformar esse conteúdo em uma lista de linhas (cada linha é uma lista de strings),
+    ignora o cabeçalho e, em seguida, aplica [parse_order_row] para converter cada linha em um registro [order].
+    
+    @param url A URL onde o arquivo CSV está disponível.
+    @return Uma promessa ([order list Lwt.t]) que, quando resolvida, retorna uma lista de registros [order]. *)
+let read_csv_orders_from_url (url: string) : order list Lwt.t = 
+  Client.get (Uri.of_string url) >>= fun (resp, body) ->
+    match Cohttp.Response.status resp with
+    | `OK ->
+      Cohttp_lwt.Body.to_string body >|= fun body_str ->
+        let csv_content = Csv.input_all (Csv.of_string body_str) in
+        let csv_rows = List.tl csv_content in
+        List.filter_map parse_order_row csv_rows
+    | status ->
+      Lwt.fail_with ("Failed to fetch CSV: " ^ (Cohttp.Code.string_of_status status))

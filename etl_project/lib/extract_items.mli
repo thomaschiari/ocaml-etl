@@ -24,3 +24,14 @@ val read_csv_order_items : string -> order_item list
     @param row Uma lista de strings que representa uma linha do CSV.
     @return Um [order_item option] com o registro parseado ou [None] se houver erro na conversão. *)
 val parse_order_item_row : string list -> order_item option
+
+
+(** [read_csv_order_items_from_url url] realiza a leitura dos dados de itens de pedidos a partir de um arquivo CSV
+    disponível na internet, acessado via HTTP GET.
+    
+    A função faz uma requisição para a URL especificada, converte o corpo da resposta para string, utiliza [Csv.of_string]
+    para obter as linhas do CSV, ignora o cabeçalho e aplica [parse_order_item_row] para converter cada linha em um registro [order_item].
+    
+    @param url A URL onde o arquivo CSV está disponível.
+    @return Uma promessa ([order_item list Lwt.t]) que, quando resolvida, retorna uma lista de registros [order_item]. *)
+val read_csv_order_items_from_url : string -> order_item list Lwt.t

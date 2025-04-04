@@ -1,5 +1,8 @@
 open Types
 
+open Lwt
+open Cohttp_lwt_unix
+
 (** [parse_order_item_row row] é uma função auxiliar (pura) que tenta converter uma
     linha de um arquivo CSV em um registro [order_item]. A função espera que a linha seja uma
     lista com exatamente cinco elementos, representando:
@@ -26,9 +29,9 @@ let parse_order_item_row (row : string list) : order_item option =
        with
        | Some order_id, Some product_id, Some quantity, Some price, Some tax ->
            Some { order_id; product_id; quantity; price; tax }
-       | _, _, _, _, _ -> None (* Failed conversion *)
+       | _, _, _, _, _ -> None
       )
-  | _ -> None (* Incorrect number of columns *)
+  | _ -> None
 
   
 (** [read_csv_order_items csv_path] realiza a leitura de um arquivo CSV contendo os itens do pedido.
@@ -42,3 +45,23 @@ let read_csv_order_items (csv_path : string) : order_item list =
   let csv_content = Csv.load csv_path in
   let csv_rows = List.tl csv_content in
   List.filter_map parse_order_item_row csv_rows
+
+
+(** [read_csv_order_items_from_url url] realiza a leitura dos dados de itens de pedidos a partir de um arquivo CSV
+    disponível na internet, acessado via HTTP GET.
+    
+    A função faz uma requisição para a URL especificada, converte o corpo da resposta para string, utiliza [Csv.of_string]
+    para obter as linhas do CSV, ignora o cabeçalho e aplica [parse_order_item_row] para converter cada linha em um registro [order_item].
+    
+    @param url A URL onde o arquivo CSV está disponível.
+    @return Uma promessa ([order_item list Lwt.t]) que, quando resolvida, retorna uma lista de registros [order_item]. *)
+let read_csv_order_items_from_url (url: string) : order_item list Lwt.t = 
+  Client.get (Uri.of_string url) >>= fun (resp, body) ->
+    match Cohttp.Response.status resp with
+    | `OK ->
+      Cohttp_lwt.Body.to_string body >|= fun body_str ->
+        let csv_content = Csv.input_all (Csv.of_string body_str) in 
+        let csv_rows = List.tl csv_content in
+        List.filter_map parse_order_item_row csv_rows
+    | status -> 
+      Lwt.fail_with ("Failed to fetch CSV: " ^ (Cohttp.Code.string_of_status status))
