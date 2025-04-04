@@ -25,7 +25,7 @@ etl_project/
 ├── dune-project
 ├── test
 │   ├── dune
-│   └── test_etl_project.ml
+│   └── test.ml
 ├── lib
 │   └── dune
 ├── bin
