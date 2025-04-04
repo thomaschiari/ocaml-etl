@@ -1,12 +1,13 @@
 open Types 
 
-(** Writes the processed output data to a CSV file.
+(** [write_output_csv filepath data] grava os dados processados em um arquivo CSV.
 
-    This function takes a list of output records and saves them to the specified
-    file path. It includes a header row.
-
-    @param filepath The path where the output CSV file will be created/overwritten.
-    @param data The list of [output_record] to write.
-    @return [Ok ()] on success, or [Error string] if an I/O or CSV error occurs.
+    Essa função recebe uma lista de registros de saída ([output_record]), adiciona uma linha de cabeçalho e
+    salva os dados formatados no arquivo especificado por [filepath]. Por realizar operações de I/O, a função
+    é considerada impura.
+    
+    @param filepath O caminho onde o arquivo CSV será criado ou sobrescrito.
+    @param data A lista de [output_record] a ser gravada.
+    @return [Ok ()] se a gravação for bem-sucedida, ou [Error string] se ocorrer um erro durante a escrita.
 *)
     val write_output_csv : string -> output_record list -> (unit, string) result

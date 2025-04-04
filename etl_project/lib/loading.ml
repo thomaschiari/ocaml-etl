@@ -1,31 +1,37 @@
-(* lib/loading.ml *)
-
 open Types
 
-(** Pure helper: Formats an output_record into a list of strings for CSV writing. *)
+(** [format_output_record record] é uma função auxiliar pura que converte um [output_record]
+    em uma lista de strings formatadas para escrita em CSV.
+    
+    Essa função converte o campo [order_id] para string e formata os campos [total_amount] e
+    [total_taxes] com duas casas decimais, utilizando [Printf.sprintf].
+    
+    @param record O registro de saída que deverá ser formatado.
+    @return Uma lista de strings representando o registro formatado para CSV.
+*)
 let format_output_record (record : output_record) : string list =
   [
     string_of_int record.order_id;
-    Printf.sprintf "%.2f" record.total_amount; (* Format float to 2 decimal places *)
-    Printf.sprintf "%.2f" record.total_taxes;  (* Format float to 2 decimal places *)
+    Printf.sprintf "%.2f" record.total_amount; 
+    Printf.sprintf "%.2f" record.total_taxes;  
   ]
 
-(** Writes the processed data to a CSV file. (Impure due to I/O) *)
+
+(** [write_output_csv filepath data] grava os dados processados em um arquivo CSV no caminho [filepath].
+    
+    A função inclui uma linha de cabeçalho e utiliza [format_output_record] para converter cada
+    [output_record] em uma lista de strings. Por realizar operações de I/O, esta função é considerada impura.
+    
+    @param filepath O caminho onde o arquivo CSV será criado ou sobrescrito.
+    @param data A lista de registros [output_record] a ser gravada no arquivo.
+    @return [Ok ()] em caso de sucesso ou [Error string] se ocorrer algum erro durante a gravação.
+*)
 let write_output_csv (filepath : string) (data : output_record list) : (unit, string) result =
   try
-    (* Define the header row *)
     let header = ["order_id"; "total_amount"; "total_taxes"] in
-
-    (* Convert list of records to list of string lists *)
     let rows = List.map format_output_record data in
-
-    (* Combine header and rows *)
     let csv_output_data = header :: rows in
-
-    (* Use Csv.save to write the data to the file *)
     Csv.save filepath csv_output_data;
-
-    (* Return Ok on success *)
     Ok ()
   with
   | Sys_error msg -> Error (Printf.sprintf "Error writing file %s: %s" filepath msg)

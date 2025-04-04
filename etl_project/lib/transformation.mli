@@ -1,16 +1,16 @@
 open Types
 
-(** Transforms raw order and item data into the final aggregated output format.
+(** [transform_data ~target_status ~target_origin orders items] transforma os dados brutos de pedidos e itens 
+    no formato final agregado.
 
-    This function filters orders based on the provided status and origin,
-    then calculates the total amount and total taxes for each matching order
-    by summing the contributions of its corresponding items.
-
-    @param target_status The desired order status to include (e.g., "complete").
-    @param target_origin The desired order origin to include (e.g., "O" for online).
-    @param orders The full list of order records loaded from the input.
-    @param items The full list of order item records loaded from the input.
-    @return A list of [output_record] containing the aggregated data for filtered orders.
+    Esta função filtra os pedidos com base no status e na origem fornecidos e, em seguida, calcula o total de
+    receita e de impostos para cada pedido, somando as contribuições de seus respectivos itens.
+    
+    @param target_status O status desejado dos pedidos a serem incluídos (por exemplo, "complete").
+    @param target_origin A origem desejada dos pedidos a serem incluídos (por exemplo, "O" para online).
+    @param orders A lista completa de registros [order] carregados da entrada.
+    @param items A lista completa de registros [order_item] carregados da entrada.
+    @return Uma lista de registros [output_record] contendo os dados agregados dos pedidos filtrados.
 *)
 val transform_data :
   target_status:string ->
