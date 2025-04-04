@@ -70,7 +70,7 @@ let transform_data ~target_status ~target_origin (orders : order list) (items : 
       | Some items_for_this_order ->
           let item_values = List.map calculate_item_values items_for_this_order in
           let total_amount, total_taxes = sum_item_values item_values in
-          Some { order_id = order.id; total_amount; total_taxes }
+          Some { or_order_id = order.id; total_amount; total_taxes }
       | None ->
           None
     )

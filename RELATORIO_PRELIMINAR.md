@@ -134,3 +134,7 @@ Os testes estão organizados no diretório `test`, e podem ser visualizados em [
 
 - **Funções de Agrupamento e Transformação:**  
   - Verificação do agrupamento dos itens por `order_id` e da transformação dos dados brutos em registros agregados (aplicando filtros de status e origem).
+
+## Fase 7: implementação de funções de leitura via HTTP
+
+## Fase 8: implementação de carga de dados em Banco de Dados Sqlite3

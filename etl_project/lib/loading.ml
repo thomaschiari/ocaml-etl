@@ -11,7 +11,7 @@ open Types
 *)
 let format_output_record (record : output_record) : string list =
   [
-    string_of_int record.order_id;
+    string_of_int record.or_order_id;
     Printf.sprintf "%.2f" record.total_amount; 
     Printf.sprintf "%.2f" record.total_taxes;  
   ]

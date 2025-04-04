@@ -41,7 +41,7 @@ let test_parse_order_row_invalid _ =
 
 (* Testa a função format_output_record do módulo Loading *)
 let test_format_output_record _ =
-  let record = { order_id = 1; total_amount = 21.0; total_taxes = 1.05 } in
+  let record = { or_order_id = 1; total_amount = 21.0; total_taxes = 1.05 } in
   let expected = ["1"; "21.00"; "1.05"] in
   let result = format_output_record record in
   assert_equal expected result ~printer:(fun l -> String.concat ", " l)
@@ -90,7 +90,6 @@ let test_transform_data _ =
     { order_id = 3; product_id = 203; quantity = 3; price = 15.0; tax = 10.0 };
   ] in
   let output_records = transform_data ~target_status:"complete" ~target_origin:"O" orders items in
-  (* Espera dois registros: para os pedidos de id 1 e 3 *)
   assert_equal 2 (List.length output_records)
 
 

@@ -1,4 +1,4 @@
 (library
  (name Etl)
- (modules types extract_items extract_orders transformation loading)
- (libraries csv lwt cohttp-lwt-unix))
+ (modules types extract_items extract_orders transformation loading loading_sqlite)
+ (libraries csv lwt cohttp-lwt-unix sqlite3))
