@@ -1,4 +1,4 @@
 (test
  (name test)
  (modules test)
- (libraries Etl ounit))
+ (libraries Etl ounit2))

@@ -16,11 +16,18 @@ O projeto foi criado e compilado utilizando o seguinte ambiente:
 
 ### Utilizando o Projeto
 
+É possível utilizar o projeto no ambiente `OCaml` local, ou utilizando Dev Containers. Um tutorial de como utilizar Dev Containers em VSCode está disponível [nesse link](https://code.visualstudio.com/docs/devcontainers/tutorial).
+
 Para utilizar o projeto, siga o passo a passo a seguir. 
-1. Certifique-se de que possui os requisitos obrigatórios de sistema configurados (`OCaml`, `OPAM` e `dune`).
+1. Certifique-se de que possui os requisitos obrigatórios de sistema configurados (`OCaml` e `OPAM`). Para isso, pode utilizar o comando `opam --version`. 
+    - Caso esteja utilizando Dev Containers e o comando não for encontrado, utilize o comando `eval $(opam env)` e teste novamente.
 2. Navegue até o diretório [etl_project](etl_project/).
-3. Utilize o comando `dune build` para compilar o projeto. 
-4. Utilize o comando `dune exec etl_project -- <ARGUMENTS>` para executar o projeto. Os argumentos são descritos a seguir. 
+3. Instale os pacotes adicionais utilizando o comando `opam install dune csv ounit ounit2 sqlite3 lwt cohttp-lwt-unix tls conduit-lwt-unix lwt_ssl -y`.
+    - Caso esteja utilizando Dev Containers, não é necessário utilizar o comando. 
+4. Utilize o comando `dune build` para compilar o projeto. 
+    - Caso esteja utilizando Dev Containers e o comando não for encontrado, utilize o comando `eval $(opam env)` e teste novamente.
+5. Para executar os testes, execute o comando `dune runtest`.
+6. Utilize o comando `dune exec etl_project -- <ARGUMENTS>` para executar o projeto. Os argumentos são descritos a seguir. 
 
 ### Argumentos de Execução 
 O programa aceita os seguintes argumentos:

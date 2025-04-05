@@ -19,6 +19,9 @@ opam switch create $OCAML_VERSION -y || true
 # Garante que estamos usando o switch correto
 opam switch $OCAML_VERSION
 
+# Instalar as bibliotecas necessárias
+opam install dune csv ounit ounit2 sqlite3 lwt cohttp-lwt-unix tls conduit-lwt-unix lwt_ssl -y
+
 # Certifica-se que o ambiente opam está carregado para os próximos comandos
 eval $(opam env)
 

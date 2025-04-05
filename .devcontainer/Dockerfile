@@ -12,6 +12,8 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive && apt-get install -
     curl \
     build-essential \
     unzip \
+    libsqlite3-dev \
+    libgmp-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copiar o script post-create para o diretório home do usuário vscode
