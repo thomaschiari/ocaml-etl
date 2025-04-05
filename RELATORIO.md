@@ -6,7 +6,7 @@ Autor: Thomas Chiari Ciocchetti de Souza
 
 ### Objetivos
 
-O projeto tem como objetivo processar os dados a partir de arquivos CSV, realizar transformações, e carregar os resultados em uma outra estrutura, como um novo arquivo CSV ou uma base de dados `sqlite3`. Para isso, a linguagem OCaml será utilizada. As duas tabelas de entrada representam dados transacionais de pedidos, e de itens de cada pedido. O objetivo final é fornecer os dados processados para alimentar dashboards de gestão. 
+O projeto tem como objetivo processar os dados a partir de arquivos CSV, realizar transformações, e carregar os resultados em uma outra estrutura, como um novo arquivo CSV ou uma base de dados `sqlite3`. Para isso, a linguagem OCaml será utilizada. As duas tabelas de entrada representam dados transacionais de pedidos, e de itens de cada pedido. O objetivo final é fornecer os dados processados para alimentar dashboards de gestão para decisões de negócio. 
 
 ### Tecnologias Utilizadas
 
@@ -14,7 +14,7 @@ O projeto foi desenvolvido utilizando o seguinte ambiente:
 - Linguagem de programação: `OCaml 4.14.2`
 - Gerenciador de pacotes: `OPAM 2.3.0`
 - Sistema Dune: `dune 3.17.2`
-- Pacotes adicionais: `csv 2.4`, `OUnit 2.2.7`
+- Pacotes adicionais: `csv 2.4`, `OUnit 2.2.7`, `sqlite3 5.3.1`, `lwt 5.9.1`, `cohttp-lwt-unix 6.1.0`
 
 ### Inicialização e Estrutura do Projeto
 
@@ -34,7 +34,21 @@ etl_project/
 └── etl_project.opam
 ```
 
-Onde o diretório `test` conterá os testes unitários utilizados para testar o projeto, o diretório `lib` conterá as definições criadas para cada etapa da pipeline, e o diretório `bin` conterá o executável principal (arquivo `main`). 
+Onde o diretório `test` conterá os testes unitários utilizados para testar o projeto, o diretório `lib` conterá as definições criadas para cada etapa da pipeline, e o diretório `bin` conterá o executável principal (arquivo `main`). Todas as funções do projeto, assim como as respectivas interfaces, estão documentadas utilizando `docstrings`. 
+
+### Requisitos opcionais implementados
+- Extração de Dados via HTTP
+- Carregamento de Dados em `Sqlite3`
+- Otimização das transformações utilizando `inner join`
+- Implementação de testes unitários
+- Implementação de documentação (`docstrings`)
+- Utilização de `dune` para organização e compilação
+
+### Separação entre funções puras e impuras
+Para isolar os efeitos colaterais, as funções foram divididas entre puras (transformação, parsing, cálculos) e impuras (extração de dados, gravação em arquivos, etc). Isso garante maior previsibilidade. 
+
+### Uso de funções de ordem superior
+As funções de ordem superior (`map`, `filter` e `fold_left`) foram amplamente utilizadas no projeto, como ao filtrar pedidos, agregar valores, etc. 
 
 ## Fase 1: Modelagem de Dados 
 
@@ -137,4 +151,49 @@ Os testes estão organizados no diretório `test`, e podem ser visualizados em [
 
 ## Fase 7: implementação de funções de leitura via HTTP
 
-## Fase 8: implementação de carga de dados em Banco de Dados Sqlite3
+Foi implementada a extração de dados diretamente da internet. Nessa fase, em vez de depender de arquivos CSV locais, o sistema realiza requisições HTTP para obter dados de itens e pedidos de uma URL. 
+
+A implementação utiliza a biblioteca `cohttp-lwt-unix`, que possibilita requisições assíncronas via protocolo HTTP. Foram criadas funções específicas para essa finalidade:
+
+- **Extração de Pedidos:**  
+  A função `read_csv_orders_from_url` realiza uma requisição GET para a URL informada, converte o corpo da resposta em string e, em seguida, utiliza as funções da biblioteca `csv` para transformar o conteúdo em uma lista de linhas. Cada linha é processada pela função `parse_order_row` para gerar um registro do tipo `order`.
+
+- **Extração de Itens:**  
+  De forma análoga, a função `read_csv_order_items_from_url` extrai os dados de itens do pedido.
+
+## Fase 8: implementação de carga de dados em Banco de Dados `Sqlite3`
+
+A etapa final da pipeline consiste na carga dos dados transformados em um banco de dados `Sqlite3`. Isso garante a persistência dos resultados em formato estruturado. 
+
+Para essa fase, foi desenvolvido o módulo `Loading_sqlite`, disponível em [`etl_project/lib/loading_sqlite.ml`](etl_project/lib/loading_sqlite.ml) que realiza as seguintes operações:
+
+- **Abertura e Criação do Banco:**  
+  A função `write_output_db` abre (ou cria) o banco de dados SQLite no caminho especificado e garante a existência da tabela `output`, que armazena os registros processados.
+
+- **Inserção dos Registros:**  
+  Cada registro do tipo `output_record` é inserido na tabela utilizando instruções parametrizadas. O processo cuida do tratamento de erros e da finalização da conexão.
+
+## Finalização: Estrutura do Executável Principal
+
+O executável principal, presente em [`etl_project/bin/main.ml`](etl_project/bin/main.ml), implementa a pipeline completa de ETL, primeiro extraindo os dados, depois tratando e transformando, e por fim carregando os resultados. O arquivo é feito para permitir que a execução seja personalizada com argumentos de linha de comando, não sendo necessário compilar novamente o projeto para alterar alguma configuração, como origem dos dados, local em que a base ou arquivo CSV serão criados, etc. 
+
+A utilização do projeto, após ser compilado, é dada utilizando a seguinte linha de comando:
+
+```sh
+dune exec etl_project -- --orders-url <LINK DO CSV DE PEDIDOS> --items-url <LINK DO CSV DE ITENS> --sqlite-path <CAMINHO PARA BASE DE DADOS> --csv-output <CAMINHO PARA CSV COM RESULTADOS>
+```
+
+O comando é apenas um exemplo, considerando que o usuário irá ler os arquivos via Internet. É possível utilizar os argumentos `--orders-local` e `--items-local` para ler arquivos locais. 
+
+## Apêndice: sobre o uso de inteligência artificial 
+
+Para a execução do projeto, foram utilizadas ferramentas de inteligência artificial. O uso é descrito a seguir:
+- GitHub Copilot: utilizado para completar linhas de código
+- ChatGPT e Gemini: utilizados para:
+    - Fornecer um passo-a-passo para a execução do projeto
+    - Fornecer as funções de extração e carregamento de dados
+    - Auxiliar a depurar erros de compilação obtidos
+    - Auxiliar na elaboração de testes unitários
+    - Auxiliar no refinamento do relatório
+
+Em resumo, essas ferramentas foram importantes para fornecer um guia geral de como realizar as implementações, e como depurar o código com maior qualidade quando necessário. 
